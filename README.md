@@ -1,8 +1,6 @@
 # Fastapi Throttle
 
 [![pypi](https://img.shields.io/pypi/v/fastapi-throttle.svg?style=flat)](https://pypi.python.org/pypi/fastapi-throttle)
-[![license](https://img.shields.io/github/license/AliYmn/fastapi-throttle)](https://github.com/AliYmn/fastapi-throttle/blob/master/LICENSE)
-[![pypi](https://github.com/AliYmn/fastapi-throttle/workflows/pypi/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow:pypi)
 [![ci](https://github.com/AliYmn/fastapi-throttle/workflows/CI/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow:CI)
 
 `fastapi-throttle` is a simple in-memory rate limiter for FastAPI applications. This package allows you to control the number of requests a client can make to your API within a specified time window without relying on external dependencies like Redis. It is ideal for lightweight applications where simplicity and speed are paramount.
