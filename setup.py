@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fastapi-throttle",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     install_requires=[
         "fastapi",
@@ -10,7 +10,7 @@ setup(
     description="A rate limiter for FastAPI without using Redis.",
     author="Ali Yaman",
     author_email="aliymn.db@gmail.com",
-    url="https://github.com/AliYmn/fastapi_throttle",
+    url="https://github.com/AliYmn/fastapi-throttle",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
