@@ -1,32 +1,23 @@
 # FastAPI Throttle
 
-[![pypi](https://img.shields.io/pypi/v/fastapi-throttle.svg?style=flat)](https://pypi.python.org/pypi/fastapi-throttle)
-[![ci](https://github.com/AliYmn/fastapi-throttle/workflows/CI/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow:CI)
+[![PyPI](https://img.shields.io/pypi/v/fastapi-throttle.svg?style=flat)](https://pypi.python.org/pypi/fastapi-throttle)
+[![CI](https://github.com/AliYmn/fastapi-throttle/workflows/CI/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow:CI)
 [![Python Versions](https://img.shields.io/pypi/pyversions/fastapi-throttle.svg)](https://pypi.org/project/fastapi-throttle/)
 [![License](https://img.shields.io/github/license/AliYmn/fastapi-throttle)](https://github.com/AliYmn/fastapi-throttle/blob/master/LICENSE)
 
-`fastapi-throttle` is a lightweight, in-memory rate limiter for FastAPI applications. This package allows you to control the number of requests a client can make to your API within a specified time window without relying on external dependencies like Redis. It is ideal for lightweight applications where simplicity and speed are paramount.
+A lightweight, in-memory rate limiter for FastAPI applications that requires no external dependencies.
 
-## 🚀 Features
+## Overview
 
-- **Zero External Dependencies**: No Redis or other external services required
-- **Simple In-Memory Storage**: Fast and efficient rate limiting using Python's built-in data structures
-- **Flexible Configuration**: Apply rate limits globally or on a per-route basis
-- **IP-Based Limiting**: Automatically identifies clients by their IP address
-- **Comprehensive Python Support**: Compatible with Python 3.8 up to 3.13
-- **Minimal Overhead**: Designed for high performance with minimal impact on response times
+FastAPI Throttle helps you control API request rates without Redis or other external services. It's designed for applications where simplicity and minimal dependencies are priorities.
 
-## 📦 Installation
-
-Install the package using pip:
+## Installation
 
 ```bash
 pip install fastapi-throttle
 ```
 
-## 🔧 Usage
-
-### Basic Example
+## Quick Start
 
 ```python
 from fastapi import FastAPI, Depends
@@ -34,15 +25,24 @@ from fastapi_throttle import RateLimiter
 
 app = FastAPI()
 
-# Apply rate limiting globally
-@app.get("/", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+# Limit to 5 requests per minute
+limiter = RateLimiter(times=5, seconds=60)
+
+@app.get("/", dependencies=[Depends(limiter)])
 async def root():
-    return {"message": "Hello, World!"}
+    return {"message": "Hello World"}
 ```
 
-### Route-Specific Rate Limiting
+## Features
 
-You can apply different rate limits to different routes as needed:
+- **No External Dependencies**: Works without Redis or other services
+- **Simple Configuration**: Just specify request count and time window
+- **Route-Level Control**: Apply different limits to different endpoints
+- **FastAPI Integration**: Works with FastAPI's dependency injection system
+
+## Usage Examples
+
+### Different Limits for Different Routes
 
 ```python
 from fastapi import FastAPI, Depends
@@ -50,19 +50,22 @@ from fastapi_throttle import RateLimiter
 
 app = FastAPI()
 
-# Apply different rate limits to different routes
-@app.get("/route1", dependencies=[Depends(RateLimiter(times=3, seconds=10))])
-async def route1():
-    return {"message": "This is route 1"}
+# Public endpoint: 10 requests per minute
+public_limit = RateLimiter(times=10, seconds=60)
 
-@app.get("/route2", dependencies=[Depends(RateLimiter(times=5, seconds=15))])
-async def route2():
-    return {"message": "This is route 2"}
+# Sensitive endpoint: 2 requests per minute
+strict_limit = RateLimiter(times=2, seconds=60)
+
+@app.get("/public", dependencies=[Depends(public_limit)])
+async def public_endpoint():
+    return {"message": "Public endpoint"}
+
+@app.get("/sensitive", dependencies=[Depends(strict_limit)])
+async def sensitive_endpoint():
+    return {"message": "Sensitive endpoint"}
 ```
 
-### Advanced Usage with Router
-
-You can also apply rate limiting to a group of routes using FastAPI's `APIRouter`:
+### Using with APIRouter
 
 ```python
 from fastapi import APIRouter, Depends, FastAPI
@@ -71,111 +74,59 @@ from fastapi_throttle import RateLimiter
 app = FastAPI()
 router = APIRouter(prefix="/api")
 
-# Apply rate limiting to all routes in this router
-router_limiter = RateLimiter(times=5, seconds=30)
+# Apply same rate limit to all routes in this router
+api_limit = RateLimiter(times=5, seconds=30)
 
-@router.get("/resource1", dependencies=[Depends(router_limiter)])
-async def resource1():
-    return {"data": "Resource 1 data"}
-
-@router.get("/resource2", dependencies=[Depends(router_limiter)])
-async def resource2():
-    return {"data": "Resource 2 data"}
+@router.get("/resource", dependencies=[Depends(api_limit)])
+async def get_resource():
+    return {"data": "Resource data"}
 
 app.include_router(router)
 ```
 
-## ⚙️ Configuration Parameters
+## Configuration
 
-The `RateLimiter` class accepts the following parameters:
+The `RateLimiter` class takes two parameters:
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `times`   | int  | The maximum number of requests allowed per client within the specified period |
-| `seconds` | int  | The time window in seconds within which the requests are counted |
+| `times`   | int  | Maximum number of requests allowed in the time window |
+| `seconds` | int  | Time window in seconds |
 
-## 🛡️ Error Handling
+## How It Works
 
-When a client exceeds the rate limit, the limiter will raise an `HTTPException` with status code `429 Too Many Requests`. You can customize the error handling in your FastAPI application as needed.
+The rate limiter:
+1. Identifies clients by IP address
+2. Stores request timestamps in memory
+3. Removes timestamps outside the current time window
+4. Counts requests within the window
+5. Returns HTTP 429 when limit is exceeded
 
-## 🔍 How It Works
+## Limitations
 
-The rate limiter works by:
+- **Memory Storage**: Data is lost when the application restarts
+- **Single-Server Only**: Not designed for distributed environments
+- **IP-Based Identification**: May not work well with shared IPs or proxies
+- **Memory Usage**: Can grow with number of unique clients
+- **No Rate Limit Headers**: Doesn't include standard rate limit headers in responses
 
-1. Identifying the client by their IP address
-2. Tracking request timestamps in memory
-3. Cleaning up old timestamps outside the specified time window
-4. Checking if the number of recent requests exceeds the limit
-5. Raising an HTTP 429 exception if the limit is exceeded
+## When to Use
 
-## 📋 Example Project
+FastAPI Throttle is ideal for:
+- Small to medium applications
+- Single-server deployments
+- Projects where simplicity is valued over advanced features
+- Development and testing environments
 
-Here's a complete example of a FastAPI application with rate limiting:
+For high-traffic production applications or distributed systems, consider a Redis-based solution.
 
-```python
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi_throttle import RateLimiter
-import uvicorn
-
-app = FastAPI(title="Rate Limited API")
-
-# Create rate limiters with different configurations
-global_limiter = RateLimiter(times=10, seconds=60)  # 10 requests per minute
-strict_limiter = RateLimiter(times=2, seconds=10)   # 2 requests per 10 seconds
-
-@app.get("/", dependencies=[Depends(global_limiter)])
-async def root():
-    return {"message": "Welcome to the rate-limited API"}
-
-@app.get("/public", dependencies=[Depends(global_limiter)])
-async def public_endpoint():
-    return {"message": "This is a public endpoint with standard rate limiting"}
-
-@app.get("/sensitive", dependencies=[Depends(strict_limiter)])
-async def sensitive_endpoint():
-    return {"message": "This is a sensitive endpoint with stricter rate limiting"}
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    if exc.status_code == 429:
-        return {"error": "Rate limit exceeded", "retry_after": "Please try again later"}
-    return {"error": exc.detail}
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-```
-
-## 🧪 Testing
-
-To run the tests:
+## Testing
 
 ```bash
 pip install pytest pytest-cov httpx
 python -m pytest
 ```
 
-Or use the provided Makefile:
+## License
 
-```bash
-make start-test
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## 📬 Contact
-
-Ali Yaman - [@aliymndb](https://twitter.com/aliymndb) - aliymn.db@gmail.com
-
-Project Link: [https://github.com/AliYmn/fastapi-throttle](https://github.com/AliYmn/fastapi-throttle)
+MIT License. See `LICENSE` for details.
