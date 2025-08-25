@@ -1,6 +1,6 @@
 import time
 from fastapi import Request, HTTPException
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class RateLimiter:
@@ -14,19 +14,24 @@ class RateLimiter:
         times (int): The maximum number of requests allowed per client within the specified period.
         seconds (int): The time window in seconds during which requests are counted.
         requests (Dict[str, List[float]]): A dictionary storing request timestamps for each client IP.
+        detail (str): The detail message to be returned to the client if the requests exceed the limit within the specified period.
     """
 
-    def __init__(self, times: int, seconds: int) -> None:
+    def __init__(self, times: int, seconds: int, detail : Optional[str] = None) -> None:
         """
         Initializes the RateLimiter instance with the specified request limit and time period.
 
         Args:
             times (int): The maximum number of requests allowed per client.
             seconds (int): The time period in seconds for rate limiting.
+            detail (str): The detail message to be returned to the client if rate limit is exceeded.
         """
         self.times: int = times
         self.seconds: int = seconds
         self.requests: Dict[str, List[float]] = {}
+        self.detail: str = detail
+        if self.detail is None:
+            self.detail: str = "Too Many Requests"            
 
     async def __call__(self, request: Request) -> None:
         """
@@ -58,7 +63,7 @@ class RateLimiter:
 
         # Check if the number of requests exceeds the allowed limit
         if len(self.requests[client_ip]) >= self.times:
-            raise HTTPException(status_code=429, detail="Too Many Requests")
+            raise HTTPException(status_code=429, detail=self.detail)
 
         # Record the current request timestamp
         self.requests[client_ip].append(current_time)
