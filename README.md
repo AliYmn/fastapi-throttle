@@ -1,15 +1,40 @@
 # FastAPI Throttle
 
-[![PyPI](https://img.shields.io/pypi/v/fastapi-throttle.svg?style=flat)](https://pypi.python.org/pypi/fastapi-throttle)
-[![CI](https://github.com/AliYmn/fastapi-throttle/workflows/CI/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow:CI)
-[![Python Versions](https://img.shields.io/pypi/pyversions/fastapi-throttle.svg)](https://pypi.org/project/fastapi-throttle/)
-[![License](https://img.shields.io/github/license/AliYmn/fastapi-throttle)](https://github.com/AliYmn/fastapi-throttle/blob/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/fastapi-throttle?logo=pypi&label=PyPI)](https://pypi.org/project/fastapi-throttle/)
+[![CI](https://github.com/AliYmn/fastapi-throttle/actions/workflows/ci.yml/badge.svg)](https://github.com/AliYmn/fastapi-throttle/actions?query=workflow%3ACI)
+[![Python Versions](https://img.shields.io/pypi/pyversions/fastapi-throttle.svg?label=Python)](https://pypi.org/project/fastapi-throttle/)
+[![License: MIT](https://img.shields.io/github/license/AliYmn/fastapi-throttle)](https://github.com/AliYmn/fastapi-throttle/blob/master/LICENSE)
+[![Downloads](https://static.pepy.tech/badge/fastapi-throttle)](https://pepy.tech/project/fastapi-throttle)
+[![Wheel](https://img.shields.io/pypi/wheel/fastapi-throttle)](https://pypi.org/project/fastapi-throttle/)
+[![Type Hints](https://img.shields.io/badge/typed-PEP%20561-blue)](https://www.python.org/dev/peps/pep-0561/)
 
 A lightweight, in-memory rate limiter for FastAPI applications that requires no external dependencies.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Usage Examples](#usage-examples)
+- [Configuration](#configuration)
+- [How It Works](#how-it-works)
+- [Limitations](#limitations)
+- [When to Use](#when-to-use)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ## Overview
 
 FastAPI Throttle helps you control API request rates without Redis or other external services. It's designed for applications where simplicity and minimal dependencies are priorities.
+
+## Requirements
+
+- Python 3.8+
+- FastAPI
 
 ## Installation
 
@@ -123,9 +148,21 @@ For high-traffic production applications or distributed systems, consider a Redi
 ## Testing
 
 ```bash
-pip install pytest pytest-cov httpx
-python -m pytest
+pip install -r requirements.txt
+pytest --cov=fastapi_throttle -q
 ```
+
+## Contributing
+
+- Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+- Make sure tests pass and add tests for new features.
+- Follow the existing code style; this repo uses flake8 and pre-commit.
+
+## Roadmap
+
+- Add optional Redis backend for distributed environments
+- Optional standard rate-limit headers in responses
+- Middleware variant in addition to dependency-based limiter
 
 ## License
 
