@@ -73,24 +73,32 @@ class RateLimiter:
         current_time: float = time.monotonic()
         window_start: float = current_time - self.seconds
 
-        # Initialize the client's request history if not already present
-        if key not in self.requests:
-            self.requests[key] = []
+        # Get and prune timestamps inside the window
+        existing = self.requests.get(key, [])
+        filtered: List[float] = [ts for ts in existing if ts > window_start]
+        if not filtered:
+            # Small hygiene: if list becomes empty, drop the key to avoid empty buckets
+            if key in self.requests:
+                del self.requests[key]
+            current_count = 0
+        else:
+            self.requests[key] = filtered
+            current_count = len(filtered)
 
-        # Keep only timestamps inside the window
-        self.requests[key] = [ts for ts in self.requests[key] if ts > window_start]
-
-        # Check if the number of requests exceeds the allowed limit
-        current_count = len(self.requests[key])
         if current_count >= self.times:
             # Compute Retry-After: time until the oldest timestamp leaves the window
-            oldest = min(self.requests[key]) if self.requests[key] else current_time
+            oldest = min(filtered) if filtered else current_time
             retry_after = int(max(0.0, self.seconds - (current_time - oldest)))
             headers = {"Retry-After": str(retry_after)} if retry_after > 0 else None
             raise HTTPException(status_code=429, detail=self.detail, headers=headers)
 
         # Record the current request timestamp
-        self.requests[key].append(current_time)
+        if filtered:
+            # Append to existing filtered list
+            self.requests[key].append(current_time)
+        else:
+            # Create a fresh list for this key
+            self.requests[key] = [current_time]
 
         # Optionally attach standard rate limit headers
         if self.add_headers:
