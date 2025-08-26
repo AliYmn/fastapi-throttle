@@ -170,7 +170,7 @@ The `RateLimiter` class parameters:
 | `times`   | int  | Maximum number of requests allowed in the time window |
 | `seconds` | int  | Time window in seconds |
 | `detail`  | str  | Optional custom detail message for 429 responses |
-| `key_func` | Callable[[Request], str] | Optional custom function to compute the rate-limit key |
+| `key_func` | `Callable[[Request], str]` | Optional custom function to compute the rate-limit key |
 | `trust_proxy` | bool | If True, tries `X-Forwarded-For` for client identification (default False) |
 | `add_headers` | bool | If True, adds `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` headers |
 
