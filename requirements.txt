@@ -1,5 +1,5 @@
 fastapi==0.116.1
 uvicorn==0.33.0
 pytest==8.3.5
-pytest-cov==6.2.1
+pytest-cov==5.0.0
 httpx==0.28.1
