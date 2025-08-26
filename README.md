@@ -183,6 +183,11 @@ The rate limiter:
 4. Counts requests within the window
 5. Returns HTTP 429 when limit is exceeded
 
+## Notes
+
+- When `add_headers=True`, successful responses (2xx) include `X-RateLimit-Limit` and `X-RateLimit-Remaining`. On 429 responses, only `Retry-After` is included.
+- Use `trust_proxy=True` only when running behind a trusted proxy/load balancer that correctly sets `X-Forwarded-For`. The first IP is treated as the client.
+
 ## Limitations
 
 - **Memory Storage**: Data is lost when the application restarts

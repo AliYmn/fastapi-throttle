@@ -59,7 +59,11 @@ class RateLimiter:
         client = request.client
         # Compute key: custom key_func takes precedence
         if self.key_func is not None:
-            key: str = self.key_func(request)
+            try:
+                key: str = self.key_func(request)
+            except Exception:
+                # Fail-safe: do not break request handling if custom key function errors out
+                key = "unknown"
         else:
             # Default behavior: determine client IP, optionally trusting proxy headers
             key = "unknown"

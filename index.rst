@@ -65,6 +65,10 @@ async def route2():
 - trust_proxy: If True, use the first IP from `X-Forwarded-For` when present (default False).
 - add_headers: If True, add `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After`.
 
+## Notes
+- When `add_headers=True`, successful responses (200 range) include `X-RateLimit-Limit` and `X-RateLimit-Remaining`. On 429, only `Retry-After` is added.
+- Use `trust_proxy=True` only when your app is behind a trusted proxy/load balancer that correctly sets `X-Forwarded-For`. The first IP is treated as the client.
+
 ## Example with Custom Configuration
 Here is an example where you use custom rate limiting per endpoint:
 
